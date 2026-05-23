@@ -1,4 +1,4 @@
-# Turtle Draw — Documentação do Projeto
+# Turtle Draw — Documentação da ponderada
 
 Este projeto utiliza **ROS2**, **Python** e conceitos de **visão computacional** para transformar uma imagem em um desenho feito pela `turtlesim`.
 
