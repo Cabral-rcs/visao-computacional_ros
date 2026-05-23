@@ -1,0 +1,12 @@
+setup.cfg
+setup.py
+turtle_draw/__init__.py
+turtle_draw/draw_turtle.py
+turtle_draw/image_to_points.py
+turtle_draw.egg-info/PKG-INFO
+turtle_draw.egg-info/SOURCES.txt
+turtle_draw.egg-info/dependency_links.txt
+turtle_draw.egg-info/entry_points.txt
+turtle_draw.egg-info/requires.txt
+turtle_draw.egg-info/top_level.txt
+turtle_draw.egg-info/zip-safe

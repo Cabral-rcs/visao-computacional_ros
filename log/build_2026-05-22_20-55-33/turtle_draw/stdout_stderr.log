@@ -1,0 +1,16 @@
+running develop
+running egg_info
+creating turtle_draw.egg-info
+writing turtle_draw.egg-info/PKG-INFO
+writing dependency_links to turtle_draw.egg-info/dependency_links.txt
+writing entry points to turtle_draw.egg-info/entry_points.txt
+writing requirements to turtle_draw.egg-info/requires.txt
+writing top-level names to turtle_draw.egg-info/top_level.txt
+writing manifest file 'turtle_draw.egg-info/SOURCES.txt'
+reading manifest file 'turtle_draw.egg-info/SOURCES.txt'
+writing manifest file 'turtle_draw.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/cabral_rafael/workspace/install/turtle_draw/lib/python3.12/site-packages/turtle-draw.egg-link (link to .)
+Installing draw_turtle script to /home/cabral_rafael/workspace/install/turtle_draw/lib/turtle_draw
+
+Installed /home/cabral_rafael/workspace/build/turtle_draw

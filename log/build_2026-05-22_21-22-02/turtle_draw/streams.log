@@ -1,0 +1,16 @@
+[1.061s] Invoking command in '/home/cabral_rafael/workspace/build/turtle_draw': PYTHONPATH=/home/cabral_rafael/workspace/build/turtle_draw/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/cabral_rafael/workspace/install/turtle_draw/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/cabral_rafael/workspace/build/turtle_draw/build --no-deps
+[1.319s] running develop
+[1.483s] running egg_info
+[1.498s] writing turtle_draw.egg-info/PKG-INFO
+[1.498s] writing dependency_links to turtle_draw.egg-info/dependency_links.txt
+[1.498s] writing entry points to turtle_draw.egg-info/entry_points.txt
+[1.498s] writing requirements to turtle_draw.egg-info/requires.txt
+[1.499s] writing top-level names to turtle_draw.egg-info/top_level.txt
+[1.529s] reading manifest file 'turtle_draw.egg-info/SOURCES.txt'
+[1.532s] writing manifest file 'turtle_draw.egg-info/SOURCES.txt'
+[1.549s] running build_ext
+[1.549s] Creating /home/cabral_rafael/workspace/install/turtle_draw/lib/python3.12/site-packages/turtle-draw.egg-link (link to .)
+[1.550s] Installing draw_turtle script to /home/cabral_rafael/workspace/install/turtle_draw/lib/turtle_draw
+[1.550s] 
+[1.550s] Installed /home/cabral_rafael/workspace/build/turtle_draw
+[1.580s] Invoked command in '/home/cabral_rafael/workspace/build/turtle_draw' returned '0': PYTHONPATH=/home/cabral_rafael/workspace/build/turtle_draw/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/cabral_rafael/workspace/install/turtle_draw/lib/python3.12/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/cabral_rafael/workspace/build/turtle_draw/build --no-deps

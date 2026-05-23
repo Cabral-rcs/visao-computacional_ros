@@ -1,0 +1,396 @@
+# Turtle Draw — Documentação do Projeto
+
+Este projeto utiliza **ROS2**, **Python** e conceitos de **visão computacional** para transformar uma imagem em um desenho feito pela `turtlesim`.
+
+A ideia principal foi desenvolver uma pipeline simples de processamento de imagem capaz de:
+- identificar as bordas principais de uma imagem;
+- transformar essas bordas em coordenadas;
+- enviar esses pontos para o ROS;
+- e fazer a tartaruga desenhar automaticamente.
+
+Mais do que apenas “fazer funcionar”, o foco do projeto foi entender como cada etapa da visão computacional influencia diretamente no resultado final do desenho.
+
+---
+
+# Objetivo do projeto
+
+O objetivo é pegar uma imagem comum (no nosso caso, um cachorro), detectar suas bordas e converter essas informações em pontos no espaço do `turtlesim`.
+
+Depois disso, o ROS2 utiliza esses pontos para movimentar a tartaruga e reproduzir o desenho.
+
+---
+
+# Estrutura do projeto
+
+```text
+src/turtle_draw/
+│
+├── images/
+│   └── dog.png
+│
+├── turtle_draw/
+│   ├── image_to_points.py
+│   ├── draw_turtle.py
+│   └── __init__.py
+│
+├── points.txt
+├── package.xml
+└── setup.py
+```
+
+---
+
+# Explicação dos arquivos
+
+## `image_to_points.py`
+
+Esse é o principal arquivo de visão computacional do projeto.
+
+Ele é responsável por:
+- carregar a imagem;
+- aplicar filtros;
+- detectar bordas;
+- encontrar os pontos relevantes;
+- converter tudo para coordenadas do `turtlesim`;
+- salvar os pontos em `points.txt`.
+
+---
+
+## `draw_turtle.py`
+
+Esse arquivo é o nó ROS2 responsável por:
+- ler os pontos salvos;
+- controlar a caneta da tartaruga;
+- mover a turtle;
+- desenhar a imagem.
+
+---
+
+## `points.txt`
+
+Arquivo gerado automaticamente.
+
+Cada linha possui:
+
+```text
+x,y,pen
+```
+
+Exemplo:
+
+```text
+5.1,7.3,0
+5.2,7.4,1
+```
+
+Onde:
+- `x` = coordenada X;
+- `y` = coordenada Y;
+- `pen` = define se a caneta deve desenhar ou não.
+
+---
+
+# Como funciona a visão computacional
+
+O projeto foi desenvolvido tentando implementar o máximo possível manualmente, justamente para demonstrar entendimento sobre os conceitos.
+
+---
+
+# 1. Carregamento da imagem
+
+A imagem é carregada usando OpenCV:
+
+```python
+image = cv2.imread(...)
+```
+
+O OpenCV carrega imagens em BGR, então foi necessário converter para RGB:
+
+```python
+image = image[:, :, ::-1]
+```
+
+---
+
+# 2. Conversão para escala de cinza
+
+A imagem colorida é transformada em grayscale.
+
+Isso reduz a complexidade do processamento, já que agora trabalhamos apenas com intensidade luminosa.
+
+A conversão foi feita manualmente usando a fórmula clássica:
+
+```python
+0.299 * R + 0.587 * G + 0.114 * B
+```
+
+Essa etapa é importante porque:
+- elimina informações desnecessárias de cor;
+- facilita a detecção de bordas.
+
+---
+
+# 3. Aplicação de blur
+
+Antes de detectar bordas, foi aplicado um blur manual usando convolução.
+
+Kernel utilizado:
+
+```python
+[
+ [1,2,1],
+ [2,4,2],
+ [1,2,1]
+] / 16
+```
+
+O blur reduz ruídos da imagem.
+
+Sem essa etapa:
+- o Sobel detectaria muitos detalhes irrelevantes;
+- a turtle desenharia muitos ruídos.
+
+---
+
+# 4. Detecção de bordas com Sobel
+
+Depois do blur, foi aplicado o operador Sobel.
+
+O Sobel calcula variações de intensidade:
+- horizontalmente;
+- verticalmente.
+
+Isso permite encontrar regiões onde existem mudanças bruscas de cor, ou seja:
+- as bordas da imagem.
+
+Foram usados dois kernels.
+
+## Sobel X
+
+```python
+[
+ [-1,0,1],
+ [-2,0,2],
+ [-1,0,1]
+]
+```
+
+## Sobel Y
+
+```python
+[
+ [-1,-2,-1],
+ [0,0,0],
+ [1,2,1]
+]
+```
+
+A magnitude final da borda é calculada com:
+
+```python
+sqrt(gx² + gy²)
+```
+
+---
+
+# 5. Threshold
+
+Depois do Sobel, ainda existem muitas bordas fracas.
+
+Então foi aplicado um threshold:
+
+```python
+threshold = 120
+```
+
+Pixels acima do threshold viram:
+- branco (255)
+
+Pixels abaixo:
+- preto (0)
+
+Isso transforma a imagem em uma imagem binária.
+
+---
+
+# 6. Remoção da borda da imagem
+
+Um dos maiores problemas encontrados foi que o algoritmo detectava também:
+- bordas da foto;
+- limites do enquadramento.
+
+Isso fazia a turtle desenhar um retângulo enorme.
+
+Para resolver:
+- foi criada uma margem;
+- tudo próximo das bordas da imagem é removido.
+
+---
+
+# 7. Busca por componentes conectados (DFS)
+
+Depois da binarização, ainda existem muitos pixels isolados.
+
+Então foi utilizado DFS (Depth First Search) para:
+- agrupar pixels vizinhos;
+- identificar regiões conectadas;
+- separar ruído do desenho principal.
+
+Componentes muito pequenos são descartados.
+
+Isso melhora muito o desenho final.
+
+---
+
+# 8. Conversão para coordenadas do turtlesim
+
+A imagem trabalha em pixels.
+
+Já o turtlesim trabalha em coordenadas de:
+- aproximadamente 0 até 11.
+
+Então foi necessário criar uma transformação de escala.
+
+Além disso:
+- o eixo Y da imagem é invertido em relação ao turtlesim;
+- por isso existe a conversão:
+
+```python
+11 - y
+```
+
+---
+
+# 9. Geração do arquivo `points.txt`
+
+Os pontos encontrados são salvos no formato:
+
+```text
+x,y,pen
+```
+
+Quando:
+- `pen = 0` → a tartaruga se move sem desenhar;
+- `pen = 1` → a tartaruga desenha.
+
+Isso evita linhas conectando partes diferentes do cachorro.
+
+---
+
+# Como o ROS2 desenha a imagem
+
+O arquivo `draw_turtle.py`:
+- lê os pontos;
+- usa os serviços do turtlesim;
+- controla a caneta;
+- teletransporta a turtle.
+
+Serviços utilizados:
+
+## Teleport
+
+```python
+/turtle1/teleport_absolute
+```
+
+Move a tartaruga instantaneamente.
+
+---
+
+## SetPen
+
+```python
+/turtle1/set_pen
+```
+
+Liga/desliga a caneta.
+
+---
+
+# Principais dificuldades encontradas
+
+Durante o desenvolvimento, os maiores problemas foram:
+- excesso de pontos;
+- ruídos internos;
+- bordas da própria imagem;
+- achatamento da imagem;
+- linhas atravessando o rosto do cachorro;
+- ordenação incorreta dos pontos.
+
+Grande parte do projeto foi ajustar esses detalhes para melhorar a qualidade final do desenho.
+
+---
+
+# Como rodar o projeto
+
+## 1. Build do workspace
+
+```bash
+cd ~/workspace
+
+source /opt/ros/kilted/setup.bash
+
+colcon build --symlink-install
+```
+
+---
+
+## 2. Abrir o turtlesim
+
+Em outro terminal:
+
+```bash
+source /opt/ros/kilted/setup.bash
+
+ros2 run turtlesim turtlesim_node
+```
+
+---
+
+## 3. Gerar os pontos da imagem
+
+No terminal principal:
+
+```bash
+cd ~/workspace
+
+source /opt/ros/kilted/setup.bash
+source install/setup.bash
+
+python3 src/turtle_draw/turtle_draw/image_to_points.py
+```
+
+---
+
+## 4. Fazer a turtle desenhar
+
+```bash
+ros2 run turtle_draw draw_turtle
+```
+
+---
+
+# Resultado esperado
+
+Ao executar:
+- a imagem é processada;
+- as bordas são encontradas;
+- os pontos são gerados;
+- e a turtle desenha automaticamente o cachorro.
+
+---
+
+# Considerações finais
+
+Esse projeto mostrou como conceitos básicos de visão computacional podem ser aplicados em conjunto com ROS2 para transformar imagens em trajetórias.
+
+Além disso, permitiu entender melhor:
+- convolução;
+- filtros;
+- detecção de bordas;
+- processamento binário;
+- busca em profundidade;
+- manipulação de coordenadas;
+- integração entre visão computacional e robótica.
+
+Mesmo sendo um projeto simples visualmente, ele envolve várias etapas importantes da área de visão computacional.
